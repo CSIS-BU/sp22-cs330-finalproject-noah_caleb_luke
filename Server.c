@@ -22,7 +22,8 @@ main(int argc, char** argv)
     char buf[MAX_SIZE]; 
     int buf_len; 
     socklen_t addr_len; 
-    int s, new_s; 
+    int s;
+    int sNum = 0; 
     char *port; 
  
     if(argc==2) { 
@@ -52,15 +53,31 @@ main(int argc, char** argv)
  
     /* wait for connection, then receive and print text */ 
     while(1) { 
+        int new_s;
         if ((new_s = accept(s, (struct sockaddr *)&sin, &addr_len)) < 0) { 
             fprintf(stderr, "error: %s accept\n", argv[0]); 
             exit(1); 
         } 
-        while ( (buf_len = recv(new_s, buf, sizeof(buf), 0)) ) { 
-            fwrite(buf, 1, buf_len, stdout); 
-        } 
-        fflush(stdout); 
-        close(new_s); 
+        sNum++;
+        pid_t pid = fork();
+        if (pid == 0) {//Child
+            printf("Child %d\n", sNum);
+            wait(1);
+            while ( (buf_len = recv(new_s, buf, sizeof(buf), 0)) ) { 
+                fwrite(buf, 1, buf_len, stdout); 
+            } 
+            fflush(stdout); 
+            close(new_s); 
+            exit(1);
+        }
+        else if (pid > 0) {//parent
+            printf("Parent %d\n", sNum);
+        }
+        else {
+            perror("[error] fork");
+            exit(1);
+        }
+        printf("Start anew!\n");
     } 
     close(s); 
  
