@@ -11,9 +11,10 @@
 #include <stdlib.h> 
 
 #define MAX_SIZE 2048 
- 
-int 
-main(int argc, char * argv[]) 
+
+int choice;
+
+int main(int argc, char * argv[]) 
 { 
     FILE *fp; 
     struct hostent *hp; 
@@ -56,18 +57,18 @@ main(int argc, char * argv[])
         exit(1); 
     } 
  
-    int size; 
-    while( (size=fread(buf, 1, MAX_SIZE, stdin) )) { 
+    int size = 1; //Only need 1 digit, but we can change this
+    while(1) { 
+        scanf("%d", &choice);
+        sprintf(buf, "%d", choice);
         if(send(s, buf, size, 0) < 0) { 
             perror("client: send"); 
         } 
-    } 
+        recv(s, buf, sizeof(buf), 0);
+        printf("\nReceive: ");
+        fwrite(buf, sizeof(buf), 1, stdout); 
+    }
  
     close(s); 
+    return 0;
 } 
- 
- 
- 
- 
- 
- 
